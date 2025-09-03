@@ -529,9 +529,9 @@ Overall, this guide demonstrates that OCI can serve as a flexible environment fo
 
 
 ## ⏭️ Next Steps
-- [ ] Configure IAM for OCI CSI Driver and CCM  
-- [ ] Deploy `oci-csi` driver for persistent storage  
-- [ ] Add StorageClasses and test PVC claims  
+- [`Configure IAM for OCI CSI Driver and CCM`](Configuring_IAM_OCI_CSI_Driver)  
+- [`Deploy `oci-csi` driver for persistent storage`](Deploying_OCI_Block_Volume_CSI_Driver )  
+
 
 ---
 
