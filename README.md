@@ -1,7 +1,8 @@
 ![OKD](https://img.shields.io/badge/OKD-1.19.0-brightgreen?logo=kubernetes&logoColor=white)![OCI](https://img.shields.io/badge/OCI-F80000?logo=oracle&logoColor=white)
- 
-
+  
 # 🚀 Deploying OpenShift Single Node (OKD) on Oracle Cloud Infrastructure (OCI)
+
+![okd](imgs/okd.png)
 
 ## 📘 Introduction
 This guide describes how to deploy a **test OpenShift platform** in **OCI** using the **open-source OKD distribution**.  
