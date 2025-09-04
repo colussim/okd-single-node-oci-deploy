@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-using-pvc
+  namespace: tests
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: nginx
+      image: nginxinc/nginx-unprivileged:1.25-alpine
+      ports:
+        - containerPort: 8080
+      volumeMounts:
+        - name: test-storage
+          mountPath: /usr/share/nginx/html
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        readOnlyRootFilesystem: false 
+  volumes:
+    - name: test-storage
+      persistentVolumeClaim:
+        claimName: pvc-test

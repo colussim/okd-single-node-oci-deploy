@@ -15,18 +15,39 @@ Before deploying the **OCI Container Storage Interface (CSI) Driver**, make sure
 
 ---
 
+## ⚙️ Adding Region and Availability Domain Labels to Nodes
+
+The OCI Block Volume CSI driver relies on Kubernetes node labels to determine in which **region** and **availability domain (AD)** the cluster is running.  
+If these labels are missing, the driver cannot place volumes correctly and PVC provisioning will fail with topology errors.
+You must add these labels to **all nodes in the cluster**
+You can manually label your nodes with the required values (replace with your own region/AD):
+
+```bash
+# Example for a node named okd01
+oc label node okd01 topology.kubernetes.io/region=us-ashburn-1
+oc label node okd01 topology.kubernetes.io/zone=us-ashburn-1-AD-1
+```
+
+After applying these labels, verify with:
+
+```bash
+oc get nodes --show-labels | grep topology
+```
+
+
 ## ⚙️ Create Provider Configuration
 
 The CSI driver needs a provider configuration to talk to OCI APIs.  
 Create a file called `provider-config.yaml`:
 
+📄 provider-config.yaml
 ```yaml
 kind: CloudProviderConfig
 apiVersion: oci.cloud.oracle.com/v1alpha1
 auth:
   useInstancePrincipals: true
   region: us-ashburn-1                # Replace with your region
-compartmentOcid: ocid1.compartment.oc1..example12345
+compartmentOcid: ocid1.compartment.oc1..example12345 # Replace with your comportment OCID
 ```
 
 ---
@@ -68,6 +89,7 @@ You should see:
 
 Create a StorageClass to provision OCI Block Volumes:
 
+📄 create_storage_class.yaml
 ```yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -81,6 +103,14 @@ parameters:
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: topology.kubernetes.io/region
+        values:
+          - us-ashburn-1
+      - key: topology.kubernetes.io/zone
+        values:
+          - us-ashburn-1-AD-1
 ```
 
 Apply it:
@@ -93,8 +123,18 @@ kubectl apply -f sc-oci-bv.yaml
 
 ## 📦 Test with a PVC
 
+We will start by creating a test project:
+
+📄 create_project.sh
+```bash
+
+oc new-project tests
+
+```
+
 Create a test PersistentVolumeClaim (PVC):
 
+📄 create_pvc.yaml
 ```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -111,11 +151,54 @@ spec:
 Apply it:
 
 ```bash
-kubectl apply -f pvc-test.yaml
-kubectl get pvc pvc-test -w
+oc -n tests apply -f create_pvc.yaml
+
+NAME       STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pvc-test   Pending                                      oci-bv         <unset>                 1m
+
+```
+The PVC shows as Pending since it has no capacity assigned yet. It will only be provisioned once a pod starts using it,
+
+Create a test POD :
+
+📄 create_pods.yaml
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-using-pvc
+  namespace: tests
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: nginx
+      image: nginxinc/nginx-unprivileged:1.25-alpine
+      ports:
+        - containerPort: 8080
+      volumeMounts:
+        - name: test-storage
+          mountPath: /usr/share/nginx/html
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        readOnlyRootFilesystem: false
+  volumes:
+    - name: test-storage
+      persistentVolumeClaim:
+        claimName: pvc-test
 ```
 
-Expected: A **PersistentVolume (PV)** is dynamically created in OCI Block Volumes.
+```bash
+oc -n tests apply -f create_pods.yaml
+
+```
 
 ---
 

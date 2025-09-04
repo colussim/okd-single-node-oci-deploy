@@ -1,0 +1,6 @@
+kind: CloudProviderConfig
+apiVersion: oci.cloud.oracle.com/v1alpha1
+auth:
+  useInstancePrincipals: true
+  region: us-ashburn-1                # Replace with your region
+compartmentOcid: ocid1.compartment.oc1..example12345 # Replace with your comportment OCID
