@@ -528,6 +528,29 @@ Now, you can log in to the web console with your admin user, using the provider:
 
 ---
 
+## 🛠️ Step 10 – ProviderID requirement for OCI Cloud Controller Manager
+
+By default, when running OpenShift in Single Node (SNO) mode on Oracle Cloud Infrastructure (OCI), the spec.providerID field of the Kubernetes Node object is not automatically populated.
+
+This field is critical for the OCI Cloud Controller Manager (CCM) and the OCI CSI driver, because it allows them to map a Kubernetes Node to the corresponding OCI instance (using its OCID).
+
+Workaround: Manually patch the Node
+
+For single-node clusters or test environments, you can patch the Node directly with the correct OCI instance OCID:
+
+```bash
+oc patch node <your_node> --type=merge -p '{"spec":{"providerID":"oci://<your_vm_ocid1>"}}'
+```
+
+Verify :
+```bash
+
+oc get node  <your_node> -o jsonpath='{.spec.providerID}{"\n"}'
+
+```
+
+---
+
 ## 🎉 Conclusion
 With this procedure, we successfully deployed an OKD Single Node (SNO) cluster on Oracle Cloud Infrastructure (OCI), despite the lack of direct ISO boot support.
 By preparing the image locally, converting it to an OCI-compatible format, and automating deployment with Terraform, we established a repeatable process for running OKD on OCI.

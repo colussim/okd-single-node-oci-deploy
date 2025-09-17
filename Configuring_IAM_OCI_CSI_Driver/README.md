@@ -76,10 +76,11 @@ Steps:
 3. Add the following statements:
 
 ```text
-Allow dynamic-group okd-nodes-dg to use volume-family in compartment <your-compartment>
+Allow dynamic-group okd-nodes-dg to manage volume-family in compartment <your-compartment>
 Allow dynamic-group okd-nodes-dg to use instance-family in compartment <your-compartment>
 Allow dynamic-group okd-nodes-dg to read metrics in compartment <your-compartment>
 Allow dynamic-group okd-nodes-dg to manage volume-attachments in compartment <your-compartment>
+Allow dynamic-group okd-nodes-dg  to use virtual-network-family in compartment <your-compartment>
 ```
 
 - volume-family → create/delete/attach/detach block volumes

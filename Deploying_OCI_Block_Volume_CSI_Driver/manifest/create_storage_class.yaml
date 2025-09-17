@@ -6,15 +6,11 @@ provisioner: blockvolume.csi.oraclecloud.com
 parameters:
   csi.storage.k8s.io/fstype: xfs
   vpusPerGB: "10"                   # Performance tier: 0, 10, 20, 30
-  attachmentType: "paravirtualized" # or "iscsi" if required
+  attachmentType: "iscsi" # "paravirtualized" or "iscsi" if required
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 allowedTopologies:
   - matchLabelExpressions:
-      - key: topology.kubernetes.io/region
-        values:
-          - us-ashburn-1
       - key: topology.kubernetes.io/zone
-        values:
-          - us-ashburn-1-AD-1
+        values: ["US-ASHBURN-AD-1"]

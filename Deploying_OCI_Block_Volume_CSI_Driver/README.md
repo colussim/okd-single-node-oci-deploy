@@ -11,6 +11,7 @@ Before deploying the **OCI Container Storage Interface (CSI) Driver**, make sure
 - A running Kubernetes or OpenShift cluster in **OCI**.
 - The **OCI Cloud Controller Manager (CCM)** is already deployed (`oci-cloud-controller-manager`).
 - The cluster nodes run in OCI and have permissions via **Instance Principals** (Dynamic Group + Policies).
+- Network Security Group (NSG) requirements : for the iSCSI Block Volume attachment to work, you must allow traffic on TCP port 3260 between your worker node(s) and the OCI Block Volume service.
 - `kubectl` or `oc` configured to access your cluster.
 
 ---
@@ -25,7 +26,7 @@ You can manually label your nodes with the required values (replace with your ow
 ```bash
 # Example for a node named okd01
 oc label node okd01 topology.kubernetes.io/region=us-ashburn-1
-oc label node okd01 topology.kubernetes.io/zone=us-ashburn-1-AD-1
+oc label node okd01 topology.kubernetes.io/zone=US-ASHBURN-AD-1
 ```
 
 After applying these labels, verify with:
@@ -42,11 +43,16 @@ Create a file called `provider-config.yaml`:
 
 📄 provider-config.yaml
 ```yaml
-kind: CloudProviderConfig
-apiVersion: oci.cloud.oracle.com/v1alpha1
 auth:
-  useInstancePrincipals: true
+  useInstancePrincipals: false
   region: us-ashburn-1                # Replace with your region
+  tenancy: ocid1.tenancy.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  user: ocid1.user.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    <snip>
+    -----END RSA PRIVATE KEY-----
+  fingerprint: 8c:bf:17:7b:5f:e0:7d:13:75:11:d6:39:0d:e2:84:74
 compartmentOcid: ocid1.compartment.oc1..example12345 # Replace with your comportment OCID
 ```
 
@@ -69,8 +75,10 @@ kubectl -n kube-system create secret generic oci-volume-provisioner \
 Apply the manifests for the latest release (example: **v1.33.0**):
 
 ```bash
-kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/v1.33.0/oci-csi-controller.yaml
-kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/v1.33.0/oci-csi-node.yaml
+
+kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/v1.33.0/oci-csi-controller-driver.yaml
+kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/v1.33.0/oci-csi-node-driver.yaml
+kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/v1.33.0/oci-csi-node-rbac.yaml
 ```
 
 Verify that pods are running:
@@ -99,18 +107,14 @@ provisioner: blockvolume.csi.oraclecloud.com
 parameters:
   csi.storage.k8s.io/fstype: xfs
   vpusPerGB: "10"                   # Performance tier: 0, 10, 20, 30
-  attachmentType: "paravirtualized" # or "iscsi" if required
+  attachmentType: "iscsi" # "paravirtualized" or "iscsi" if required
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 allowedTopologies:
   - matchLabelExpressions:
-      - key: topology.kubernetes.io/region
-        values:
-          - us-ashburn-1
       - key: topology.kubernetes.io/zone
-        values:
-          - us-ashburn-1-AD-1
+        values: ["US-ASHBURN-AD-1"]
 ```
 
 Apply it:
@@ -216,7 +220,9 @@ With this setup, your cluster can dynamically provision and attach OCI Block Vol
 
 ## 📚 References
 
+- [container storage interface (CSI)](https://github.com/oracle/oci-cloud-controller-manager/blob/master/container-storage-interface.md)
 - [oci-cloud-controller-manager](https://github.com/oracle/oci-cloud-controller-manager)
+
 
 ---
 <table>

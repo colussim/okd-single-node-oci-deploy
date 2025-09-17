@@ -1,6 +1,11 @@
-kind: CloudProviderConfig
-apiVersion: oci.cloud.oracle.com/v1alpha1
 auth:
-  useInstancePrincipals: true
+  useInstancePrincipals: false 
   region: us-ashburn-1                # Replace with your region
+  tenancy: ocid1.tenancy.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  user: ocid1.user.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    <snip>
+    -----END RSA PRIVATE KEY-----
+  fingerprint: 8c:bf:17:7b:5f:e0:7d:13:75:11:d6:39:0d:e2:84:74
 compartmentOcid: ocid1.compartment.oc1..example12345 # Replace with your comportment OCID
