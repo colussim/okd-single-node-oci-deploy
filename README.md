@@ -60,8 +60,8 @@ O1 -. provides infra .- O4
 - A **Linux build host** with:
   - 10 vCPU / 48 GB RAM minimum  
   - 500 GB of free disk space  
-  - Packages: `qemu-kvm`, `libvirt`, `virt-install`, `virt-manager`, `libvirt-client`, `podman`  
-- Installed tools:
+  - Packages: `qemu-kvm`, `libvirt`, `virt-install`, `virt-manager`, `libvirt-client`, `podman`  , `nmstate`
+- Installed tools: and copy this binary in /usr/bin directory
   - [`terraform`](https://developer.hashicorp.com/terraform/downloads)  
   - `kubectl` or `oc` CLI  
   - `htpasswd`
@@ -77,7 +77,7 @@ cd okd-single-node-oci-deploy
 ## 🛠️ Step 1 – Install Dependencies
 
 ```bash
-sudo dnf install -y qemu-kvm libvirt virt-install virt-manager libvirt-client podman jq
+sudo dnf install -y qemu-kvm libvirt virt-install virt-manager libvirt-client podman jq nmstate
 ```
 
 ## 🛠️ Step 2 – Prepare OKD Artifacts
@@ -104,9 +104,6 @@ chmod +x openshift-install
 ```
 
 Get the latest SCOS QCOW2 image:
-```bash
-./openshift-install coreos print-stream-json | jq -r '.architectures.x86_64.artifacts.qemu.formats."qcow2.gz".disk.location'
-```
 
 👉 This will give you the official URL of the latest compressed QCOW2 for SCOS/FCOS.
 
@@ -171,6 +168,7 @@ Main entries explained:
 
 📄 agent-config.yaml
 ```yaml
+apiVersion: v1alpha1
 kind: AgentConfig
 metadata:
   name: okdk8s
@@ -217,7 +215,8 @@ Generate the single-node ignition config:
 mkdir -p workdir
 cp install-config.yaml agent-config.yaml workdir/
 
-openshift-install --dir=workdir create single-node-ignition-config --log-level=debug
+openshift-install agent create image --dir  workdir --log-level=debug 
+
 ```
 
 An image is generated: *agent.x86_64.iso*
@@ -225,20 +224,6 @@ An image is generated: *agent.x86_64.iso*
 ---
 ## 🛠️ Step 4 – Configure Libvirt Network
 
-Create a `br10` bridge:
-
-```bash
-sudo nmcli connection add type bridge ifname br10 con-name br10
-sudo nmcli connection modify br10 ipv4.addresses 10.0.30.1/24 ipv4.method manual
-sudo nmcli connection up br10
-```
-
-Enable NAT:
-
-```bash
-sudo iptables -t nat -A POSTROUTING -s 10.0.30.0/24 -o <internet_iface> -j MASQUERADE
-sudo sysctl -w net.ipv4.ip_forward=1
-```
 
 Define libvirt network (`okd-net.xml`) with a DHCP reservation (`10.0.30.200`) for the node:
 
@@ -299,6 +284,12 @@ openshift-install agent wait-for install-complete --dir workdir --log-level=debu
 ```
 
 ➡️ Let the installation run. At the end, the VM shuts down automatically and the disk /data02/okd-agent/okd-sno.qcow2 now contains the full OKD installation.
+
+To show vm status
+
+```bash
+sudo virsh list
+```
 
 To restart the VM after installation completes:
 ```bash
