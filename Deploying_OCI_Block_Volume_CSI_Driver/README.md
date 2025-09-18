@@ -56,6 +56,9 @@ auth:
 compartmentOcid: ocid1.compartment.oc1..example12345 # Replace with your comportment OCID
 ```
 
+An example configuration file can be found [here](https://github.com/oracle/oci-cloud-controller-manager/blob/master/manifests/provider-config-example.yaml).
+
+
 ---
 
 ## 🔑 Create the Secret for the CSI Driver
