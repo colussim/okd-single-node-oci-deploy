@@ -658,6 +658,20 @@ Overall, this guide demonstrates that OCI can serve as a flexible environment fo
 
 ---
 
+## 🧰 Troubleshooting
+
+The following commands are useful when diagnosing issues:
+
+### Accessing the host node
+```bash
+oc debug node/<node>
+chroot /host
+```
+
+This will give you a shell directly on the node’s host operating system. From there you can use standard Linux tools to investigate system-level problems.
+
+---
+
 
 ## ⏭️ Next Steps
 - [`Deploying OCI Cloud Controller Manager (CCM)`](Deploying_OCI_Cloud_Controller_Manager)  
