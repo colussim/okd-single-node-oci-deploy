@@ -636,11 +636,12 @@ oc get mcp master
 > ⚠️ On SNO, this change targets the master MachineConfigPool.
 Applying it will reboot the single node, making the cluster temporarily unavailable until it comes back online.
 
-Summary
-	•	The warning is about reserved system memory, not total memory.
-	•	On SNO, reservations are applied via the master MCP.
-	•	Increase systemReserved (e.g. 5 GiB on a 32 GiB node with ~90 pods) to prevent the alert.
-	•	Adjust values according to your workload density and node capacity.
+**Summary**
+
+- The warning is about reserved system memory, not total memory.
+- On SNO, reservations are applied via the master MCP.
+- Increase systemReserved (e.g. 5 GiB on a 32 GiB node with ~90 pods) to prevent the alert.
+- Adjust values according to your workload density and node capacity.
 
 ---
 
