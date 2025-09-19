@@ -55,7 +55,7 @@ O1 -. provides infra .- O4
 ## 📋 Prerequisites
 - An **OCI account** with appropriate IAM access.
 - An [**RedHat  account**](https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/auth?client_id=cloud-services&redirect_uri=https%3A%2F%2Fconsole.redhat.com%2Fopenshift%2Finstall%2Fpull-secret&response_type=code&scope=openid+api.console+api.ask_red_hat&nonce=4fa08d33-e0c6-434e-8ede-007b4650f86a&state=4f2dda0f64694f73a28a0cf04c11eff1&response_mode=fragment)
-- A **VCN 
+- A **VCN** 
 - An **Object Storage bucket** for custom image upload.  
 - A **Linux build host** with:
   - 10 vCPU / 48 GB RAM minimum  
