@@ -542,6 +542,108 @@ oc get node  <your_node> -o jsonpath='{.spec.providerID}{"\n"}'
 
 ---
 
+## 🧠 📏 Memory Reservation Warning Explained
+
+If you see a warning like:
+
+> System memory usage of 1.503G on Node `okd01` exceeds 95% of the reservation.
+Reserved memory ensures system processes can function even when the node is fully
+allocated and protects against workload out of memory events impacting the proper
+functioning of the node.
+
+This does **not** mean that your node has run out of physical memory.  
+It means that the kubelet’s **systemReserved** memory (the slice of RAM reserved for the OS, 
+kubelet, CRI-O, CNI, and other system components) is nearly full.
+
+By default, OpenShift only reserves about **1–1.5 GiB** for system processes.  
+On nodes with many pods or on a **Single Node OpenShift (SNO)** cluster, this is often 
+insufficient and triggers the warning — even if plenty of memory remains available overall.
+
+---
+
+### Why this happens
+- **Capacity** is the total memory of the node.  
+- **Allocatable** is what remains for pods after subtracting system reservations.  
+- On a 32 GiB node, you may see something like:
+  - Capacity: ~31.3 GiB  
+  - Allocatable: ~30.2 GiB  
+  - Reserved: ~1.1 GiB  
+- If system processes use ~1.5 GiB, the reservation is exceeded → warning appears.  
+
+---
+
+### How much should you reserve?
+
+As a rule of thumb:
+
+| Pod Density (per node) | Recommended `systemReserved.memory` | Notes |
+|-------------------------|-------------------------------------|-------|
+| < 50 pods              | 2–3 GiB                            | Small clusters, light workloads |
+| 50–100 pods            | 4–5 GiB                            | Typical medium density |
+| 100–150 pods           | 5–6 GiB                            | Heavier workloads |
+| > 150 pods             | 6+ GiB                             | Tune based on monitoring |
+
+For a **32 GiB Single Node OpenShift cluster** running around **90 pods**, the recommended settings are:
+
+- `systemReserved.memory = 5Gi`  
+- `kubeReserved.memory   = 1Gi`
+
+This leaves ~26 GiB available for workloads, while ensuring system components are not starved.  
+
+
+### The solution
+Increase the kubelet’s memory reservations so that system processes have more headroom.
+
+For a **32 GiB Single Node OpenShift cluster** running around **90 pods**, a good baseline is:
+
+- `systemReserved.memory = 5Gi`  
+- `kubeReserved.memory   = 1Gi`
+
+This leaves ~26 GiB available for workloads, while ensuring system components are not starved.  
+
+📄 increase-system-reserved-master.yaml:
+
+```yaml
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: increase-system-reserved-master
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/master: ""
+  kubeletConfig:
+    systemReserved:
+      cpu: "500m"
+      memory: "5Gi"
+      ephemeral-storage: "1Gi"
+    kubeReserved:
+      cpu: "500m"
+      memory: "1Gi"
+      ephemeral-storage: "1Gi"
+    evictionHard:
+      "memory.available": "500Mi"
+      "nodefs.available": "10%"
+```
+
+Apply the configuration:
+
+```bash
+oc apply -f increase-system-reserved-master.yaml
+oc get mcp master
+```
+
+> ⚠️ On SNO, this change targets the master MachineConfigPool.
+Applying it will reboot the single node, making the cluster temporarily unavailable until it comes back online.
+
+Summary
+	•	The warning is about reserved system memory, not total memory.
+	•	On SNO, reservations are applied via the master MCP.
+	•	Increase systemReserved (e.g. 5 GiB on a 32 GiB node with ~90 pods) to prevent the alert.
+	•	Adjust values according to your workload density and node capacity.
+
+---
+
 ## 🎉 Conclusion
 With this procedure, we successfully deployed an OKD Single Node (SNO) cluster on Oracle Cloud Infrastructure (OCI), despite the lack of direct ISO boot support.
 By preparing the image locally, converting it to an OCI-compatible format, and automating deployment with Terraform, we established a repeatable process for running OKD on OCI.
@@ -571,5 +673,6 @@ Overall, this guide demonstrates that OCI can serve as a flexible environment fo
 - [OKD installation](https://docs.okd.io/latest/installing/overview/)
 - [Installing OpenShift on a single node ](https://docs.okd.io/latest/installing/installing_sno/install-sno-installing-sno.html)
 - [pull secret from Red Hat OpenShift Cluster Manager](https://console.redhat.com/openshift/install/pull-secret)
+- [Which amount of CPU and memory are recommended to reserve for the system in OpenShift](https://access.redhat.com/solutions/5843241)
 - [Install Terraform](https://developer.hashicorp.com/terraform/install)
 ---
