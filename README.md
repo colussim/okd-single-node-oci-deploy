@@ -449,7 +449,42 @@ Congratulations 👏, you have a fully operational OKD image.**
 
 ## 🛠️ Step 8 – Access the Web Console
 
-Update your `/etc/hosts` (on your laptop):
+### Importing an OKD kubeconfig into your local environment
+
+When you deploy a new OKD cluster, a dedicated `kubeconfig` file is generated (e.g., in the `auth/kubeconfig` directory of your installer or under `/etc/kubernetes/kubeconfig` on the control plane node).  
+If you already have a local `~/.kube/config` with other clusters, you can merge the new file instead of overwriting it.
+
+### 1. Copy the kubeconfig from the cluster
+
+From your laptop, copy the kubeconfig file (example using `scp`):
+```bash
+scp user@<okd_vm_ip>:/path/to/auth/kubeconfig ~/okd-new.kubeconfig
+
+```
+
+### 2. Merge with your existing kubeconfig
+
+Use the KUBECONFIG environment variable to flatten both configurations into one:
+```bash
+KUBECONFIG=~/.kube/config:~/okd-new.kubeconfig kubectl config view --flatten > /tmp/config-merged
+mv /tmp/config-merged ~/.kube/config
+```
+> ⚠️ The --flatten option is required to produce a clean, single configuration file without duplicate references.
+
+Verify available contexts:
+```bash
+oc config get-contexts
+```
+
+### 3. Switch between clusters
+
+To change the active cluster:
+```bash
+oc config use-context <context_name>
+```
+
+
+### 4. Update your `/etc/hosts` (on your laptop):
 
 ```text
 `<public_ip>` api.okdk8s.mysqllab.com api-int.okdk8s.mysqllab.com \
@@ -518,6 +553,7 @@ Now, you can log in to the web console with your admin user, using the provider:
 ![webconsole2](imgs/webconsole2.png)
 
 ---
+
 
 ## 🛠️ Step 10 – ProviderID requirement for OCI Cloud Controller Manager
 
