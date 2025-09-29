@@ -466,8 +466,8 @@ scp user@<okd_vm_ip>:/path/to/auth/kubeconfig ~/okd-new.kubeconfig
 
 Use the KUBECONFIG environment variable to flatten both configurations into one:
 ```bash
-KUBECONFIG=~/.kube/config:~/okd-new.kubeconfig kubectl config view --flatten > /tmp/config-merged
-mv /tmp/config-merged ~/.kube/config
+KKUBECONFIG=~/.kube/config : ~/okd-new.kubeconfig 
+kubectl config view --flatten > ~/.kube/config
 ```
 > ⚠️ The --flatten option is required to produce a clean, single configuration file without duplicate references.
 

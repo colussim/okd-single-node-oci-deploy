@@ -209,7 +209,8 @@ resource "null_resource" "pull_kubeconfig_and_merge" {
         cp "$${LOCAL_KCFG}" "$${LOCAL_DIR}/config"
       else
        
-        KUBECONFIG="$${LOCAL_DIR}/config:$${LOCAL_KCFG}" kubectl config view --flatten > "$${LOCAL_DIR}/config.merged"
+        KUBECONFIG="$${LOCAL_DIR}/config:$${LOCAL_KCFG}" 
+        kubectl config view --flatten > "$${LOCAL_DIR}/config.merged"
         mv "$${LOCAL_DIR}/config.merged" "$${LOCAL_DIR}/config"
       fi  
     
