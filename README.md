@@ -458,31 +458,19 @@ If you already have a local `~/.kube/config` with other clusters, you can merge 
 
 From your laptop, copy the kubeconfig file (example using `scp`):
 ```bash
-scp user@<okd_vm_ip>:/path/to/auth/kubeconfig ~/okd-new.kubeconfig
+scp user@<okd_vm_ip>:/path/to/auth/kubeconfig ~/.kube/okd-new.kubeconfig
 
 ```
 
 ### 2. Merge with your existing kubeconfig
 
-Use the KUBECONFIG environment variable to flatten both configurations into one:
+If you do not have a configuration file, create the `.kube` directory in your home directory and copy the file `~/okd-new.kubeconfig` to the directory as `config`.
+
+For increased security, we will not merge contexts in case there are duplicates with the same context name and user. Instead, when running the oc or kubectl commands, specify the configuration file explicitly using the  `--kubeconfig ` parameter, for example:  
+
 ```bash
-KKUBECONFIG=~/.kube/config : ~/okd-new.kubeconfig 
-kubectl config view --flatten > ~/.kube/config
+oc get nodes --kubeconfig=~/okd-new.kubeconfig 
 ```
-> ⚠️ The --flatten option is required to produce a clean, single configuration file without duplicate references.
-
-Verify available contexts:
-```bash
-oc config get-contexts
-```
-
-### 3. Switch between clusters
-
-To change the active cluster:
-```bash
-oc config use-context <context_name>
-```
-
 
 ### 4. Update your `/etc/hosts` (on your laptop):
 
