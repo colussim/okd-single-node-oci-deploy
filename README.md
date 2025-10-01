@@ -504,7 +504,7 @@ htpasswd -c -B users.htpasswd admin
 
 Create a secret with the admin user and its password:
 ```bash
-oc create secret generic htpasswd-secret --from-file=htpasswd=users.htpasswd -n openshift-config
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  create secret generic htpasswd-secret --from-file=htpasswd=users.htpasswd -n openshift-config
 ```
 
 Since we don't have an Identity Provider available, we will create an IdentityProvider_HTPasswd:
@@ -532,8 +532,8 @@ oc apply -f oauth-htpasswd.yaml
 
 Next, assign the cluster-admin role to our admin user:
 ```bash
-oc create user admin
-oc adm policy add-cluster-role-to-user cluster-admin admin
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  create user admin
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  adm policy add-cluster-role-to-user cluster-admin admin
 ```
 
 Now, you can log in to the web console with your admin user, using the provider: `local-htpasswd`.
@@ -554,13 +554,13 @@ Workaround: Manually patch the Node
 For single-node clusters or test environments, you can patch the Node directly with the correct OCI instance OCID:
 
 ```bash
-oc patch node <your_node> --type=merge -p '{"spec":{"providerID":"oci://<your_vm_ocid1>"}}'
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  patch node <your_node> --type=merge -p '{"spec":{"providerID":"oci://<your_vm_ocid1>"}}'
 ```
 
 Verify :
 ```bash
 
-oc get node  <your_node> -o jsonpath='{.spec.providerID}{"\n"}'
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  get node  <your_node> -o jsonpath='{.spec.providerID}{"\n"}'
 
 ```
 
@@ -653,8 +653,8 @@ spec:
 Apply the configuration:
 
 ```bash
-oc apply -f increase-system-reserved-master.yaml
-oc get mcp master
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  apply -f increase-system-reserved-master.yaml
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  get mcp master
 ```
 
 > ⚠️ On SNO, this change targets the master MachineConfigPool.
@@ -689,7 +689,7 @@ The following commands are useful when diagnosing issues:
 
 ### Accessing the host node
 ```bash
-oc debug node/<node>
+oc --kubeconfig=~/.kube/okd-new.kubeconfig  debug node/<node>
 chroot /host
 ```
 
