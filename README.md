@@ -469,7 +469,7 @@ If you do not have a configuration file, create the `.kube` directory in your ho
 For increased security, we will not merge contexts in case there are duplicates with the same context name and user. Instead, when running the oc or kubectl commands, specify the configuration file explicitly using the  `--kubeconfig ` parameter, for example:  
 
 ```bash
-oc get nodes --kubeconfig=~/okd-new.kubeconfig 
+oc get nodes --kubeconfig=~/.kube/okd-new.kubeconfig 
 ```
 
 ### 4. Update your `/etc/hosts` (on your laptop):
