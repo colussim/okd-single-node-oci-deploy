@@ -472,7 +472,7 @@ For increased security, we will not merge contexts in case there are duplicates 
 oc get nodes --kubeconfig=~/.kube/okd-new.kubeconfig 
 ```
 
-### 4. Update your `/etc/hosts` (on your laptop):
+### 3. Update your `/etc/hosts` (on your laptop):
 
 ```text
 `<public_ip>` api.okdk8s.mysqllab.com api-int.okdk8s.mysqllab.com \
