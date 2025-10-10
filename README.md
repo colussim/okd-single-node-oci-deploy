@@ -25,7 +25,7 @@ The installation leverages an Ignition file, a first boot on a CoreOS live image
 
 Before starting, make sure to clone the repository:
 ```bash
-git clone https://github.com/colussim/okd-single-node-oci-deploy.git  
+git clone https://github.com/colussim/okd-single-node-oci-deploy/tree/v2  
 cd okd-single-node-oci-deploy  
 ```
 
@@ -139,17 +139,28 @@ PRESIGN_DAYS="365"
 Main entries explained:
 
 •	`CLUSTER_NAME`: The cluster name (okdk8s-02 → the full cluster domain will be okdk8s-02.mysqllab.com).
+
 •	`BASE_DOMAIN`: The DNS domain name for your cluster (example: mysqllab.com).
+
 •	`OKD_VERSION`:  	Replace  with the current version.
 • `ARCH`:  Target CPU architecture for nodes: "amd64" (x86_64) or "arm64". 
+
 •`CLUSTER_NETWORK_CIDR`: CIDR range used by OKD pod network (cluster internal overlay network).
+
 •	`CLUSTER_NETWORK_HOSTPREFIX`:  Host prefix (netmask length) for pod subnets allocated to each node (controls per-node subnet size).
+
 •	`SERVICE_NETWORK_CIDR `:  CIDR range used for Kubernetes/OKD services (ClusterIP addresses).
+
 •	`CIDR `:  CIDR of the OCI subnet where the VM(s) will be created (network for the host/installer VMs).
+
 •	`PULL_SECRET`: The pull secret copied from the Red Hat cluster manager (for image pulls). ❗️**Leave the PULL_SECRET value as is**, since it is not needed because we are installing OKD, which is based on open-source repositories freely accessible, unlike OpenShift which requires access to Red Hat repositories.
+
 •	`SSH_PUBKEY`: Public SSH key that allows you to log in to the VM after install.
+
 •	`REGION`: OCI region identifier where Object Storage bucket and resources reside (e.g., "us-ashburn-1").
+
 •	`BUCKET`:  Name of the OCI Object Storage bucket used to store OKD/SCOS images and uploads.
+
 •	`PRESIGN_DAYS`: Number of days presigned URLs for uploads/Downloads remain valid (expiration in days)..
 
 Download the `OKD installer` and make it available for use by entering the following commands:
@@ -811,44 +822,6 @@ For production-grade workloads, further steps would be needed such as:
 - configuring security, monitoring, and backup.
 
 Overall, this guide demonstrates that OCI can serve as a flexible environment for OKD/OpenShift experimentation, while leaving room to evolve towards more advanced deployments.
-```bash
-iscsi: error logging in target: exit status 8
-rpc error: code = Internal desc = context deadline exceeded
-
-```
-
-🔒 Consequence:
-Persistent volumes provisioned through the driver *blockvolume.csi.oraclecloud.com* cannot be mounted by pods when using
-attachmentType: "iscsi" in an OKD or OVN-based Kubernetes environment.
-
-✅ Recommended Workarounds
-	•	Use attachmentType: "paravirtualized" if supported by your workloads.
-	•	Alternatively, deploy an external storage backend, such as a Ceph cluster or any iSCSI/NVMe solution using a dedicated non-link-local network.
-	•	Expose this storage through a compatible CSI driver (e.g., Ceph RBD, NFS, or another vendor driver).
-
-⸻
-
-🧭 Recommended Topology Example
-```text
-+----------------------+         +----------------------+
-|   OKD / OpenShift    |         |     Ceph Cluster     |
-|   Node (10.0.30.x)   | <-----> |  iSCSI/NVMe Network  |
-|   OVN link-local     |         |   (10.0.40.x VLAN)   |
-|   169.254.0.0/16 ⚠️  |         |  No link-local use   |
-+----------------------+         +----------------------+
-
-```
-This approach isolates iSCSI or block storage traffic on a dedicated subnet
-(e.g. 10.0.40.0/24), fully compatible with OVN, and enables reliable and multi-node persistent volumes using the Ceph CSI driver or similar.
-
-**⚠️ TL;DR**
-
-> The OCI CSI iSCSI mode cannot be used on OpenShift/OVN because both rely on 169.254.0.0/16.
-> Use a dedicated storage backend (e.g., Ceph, NFS, NVMe) on a separate subnet instead.
-
-
-
-
 
 ---
 
