@@ -2,16 +2,16 @@ terraform {
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = "~> 6.20.0"
+      version = "~> 7.20.0"
     }
   }
 }
 
 
 provider "oci" {
-  tenancy_ocid     = "ocid1.tenancy.oc1..XXXXXXXXX"
-  user_ocid        = "ocid1.user.oc1..XXXXXXXXXX"
-  private_key_path = "XXXXXXXXXXXX.pem"
-  fingerprint      = "XXXXXXXXXXXX"
+  tenancy_ocid     = "ocid1.tenancy.oc1..xxxxx"
+  user_ocid        = "ocid1.user.oc1..xxxxx"
+  private_key_path = "HOME_USER/.oci/key.pem"
+  fingerprint      = "xxxxx"
   region           = "us-ashburn-1"
 }

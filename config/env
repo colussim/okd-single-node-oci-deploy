@@ -1,0 +1,27 @@
+# ---- CLUSTER IDENTITY ----
+CLUSTER_NAME="kdk8s-02"         
+BASE_DOMAIN="mysqllab.com"
+
+# OKD Version
+OKD_VERSION="4.20.0-okd-scos.0"
+
+# Arch cible: amd64 (x86) ou arm64 (Ampere A1)
+ARCH="amd64"
+
+# Network (OKD internal + network machine OCI)
+CLUSTER_NETWORK_CIDR="10.128.0.0/14"
+CLUSTER_NETWORK_HOSTPREFIX="23"
+SERVICE_NETWORK_CIDR="172.30.0.0/16"
+CIDR="10.0.30.0/24"  # CIDR on subnet OCI 
+
+# SSH + Pull Secret
+
+PULL_SECRET='{"auths":{"example.com":{"auth":"ZHVtbXk6ZHVtbXk="}}}'   
+SSH_PUBKEY="<ssh_key>"
+
+# ---- OCI OBJECT STORAGE / UPLOAD ----
+REGION="us-ashburn-1"
+BUCKET="okd-images"
+
+# Validité des URLs présignées
+PRESIGN_DAYS="365"
