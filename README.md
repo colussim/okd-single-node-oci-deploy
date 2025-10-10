@@ -875,7 +875,7 @@ attachmentType: "iscsi" in an OKD or OVN-based Kubernetes environment.
 |   OKD / OpenShift    |         |     Ceph Cluster     |
 |   Node (10.0.30.x)   | <-----> |  iSCSI/NVMe Network  |
 |   OVN link-local     |         |   (10.0.40.x VLAN)   |
-|   169.254.0.0/16 ⚠️  |         |  No link-local use   |
+|   169.254.0.0/16     |         |  No link-local use   |
 +----------------------+         +----------------------+
 ```
 This approach isolates iSCSI or block storage traffic on a dedicated subnet
