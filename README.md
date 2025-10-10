@@ -66,29 +66,7 @@ flowchart TD
 
 ---
 
-## 📋 Prerequisites
-- An **OCI account** with appropriate IAM access.
-- An [**RedHat  account**](https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/auth?client_id=cloud-services&redirect_uri=https%3A%2F%2Fconsole.redhat.com%2Fopenshift%2Finstall%2Fpull-secret&response_type=code&scope=openid+api.console+api.ask_red_hat&nonce=4fa08d33-e0c6-434e-8ede-007b4650f86a&state=4f2dda0f64694f73a28a0cf04c11eff1&response_mode=fragment)
-- A **VCN** 
-- An **Object Storage bucket** for custom image upload.  
-- A **Linux build host** with:
-  - 10 vCPU / 48 GB RAM minimum  
-  - 500 GB of free disk space  
-  - Packages: `qemu-kvm`, `libvirt`, `virt-install`, `virt-manager`, `libvirt-client`, `podman`  , `nmstate`
-- Installed tools: and copy this binary in /usr/bin directory
-  - [`terraform`](https://developer.hashicorp.com/terraform/downloads)  
-  - `kubectl` or `oc` CLI  
-  - `htpasswd`
-  - `OCI Client`(https://www.oracle.com/database/technologies/instant-client/downloads.html)
 
-Before starting, make sure to clone the repository:
-```bash
-git clone https://github.com/colussim/okd-single-node-oci-deploy.git  
-cd okd-single-node-oci-deploy  
-```
----
-
-#
 ## 🛠️ Step 1 – Install Dependencies
 
 ```bash
